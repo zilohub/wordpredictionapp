@@ -1,0 +1,212 @@
+---
+title: "ngrams"
+author: "ZZ"
+date: "1/22/2021"
+output: html_document
+---
+```{r load-packages, include=FALSE}
+library(dplyr)
+library(magrittr)
+library(knitr)
+library(plyr)
+library(ggplot2)
+library(gridExtra)
+library(wordcloud)
+library(quanteda)
+library(NLP)
+library(stringr)
+library(downloader)
+library(tm)
+library(stringi)
+```
+
+
+```{r }
+setwd("~/R/final/en_US")
+
+blogs <- readLines("~/R/final/en_US/en_US.blogs.txt",n = 100000, skipNul = TRUE)
+#blogs   <- tibble(text = blogs)
+news <- readLines("~/R/final/en_US/en_US.news.txt", n = 100000, skipNul = TRUE)
+#news    <- tibble(text = news)
+twitter <- readLines("~/R/final/en_US/en_US.twitter.txt", n = 100000, skipNul = TRUE)
+#twitter <- tibble(text = twitter)
+
+```
+
+```{r }
+
+library(tidytext)       
+
+bigram_repo_b <- blogs  %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+bigram_cover_b <- bigram_repo_b %>%
+  count(bigram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("bigram_repo_b"))
+bigram_cover_b %>%
+  top_n(15, n) %>%
+  mutate(bigram = reorder(bigram, n)) %>%
+  ggplot(aes(bigram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("Bigrams_blogs")
+```
+
+```{r echo=FALSE}
+bigram_repo_t <- twitter  %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+bigram_cover_t <- bigram_repo_t%>%
+  count(bigram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("bigram_repo_t"))
+bigram_cover_t %>%
+  top_n(15, n) %>%
+  mutate(bigram = reorder(bigram, n)) %>%
+  ggplot(aes(bigram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("Bigrams_twitter")
+```
+
+```{r echo=FALSE}
+bigram_repo_n <- news  %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+bigram_cover <- bigram_repo_n%>%
+  count(bigram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("bigram_repo_n"))
+bigram_cover %>%
+  top_n(15, n) %>%
+  mutate(bigram = reorder(bigram, n)) %>%
+  ggplot(aes(bigram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("Bigrams_news")
+```
+
+3 gram
+
+```{r}
+trigram_repo_b <- blogs  %>%
+  unnest_tokens(trigram, text, token = "ngrams", n = 3)
+
+trigram_cover_b <- trigram_repo_b %>%
+  count(trigram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("trigram_repo_b"))
+trigram_cover_b %>%
+  top_n(15, n) %>%
+  mutate(bigram = reorder(trigram, n)) %>%
+  ggplot(aes(bigram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("trigrams_blogs")
+
+```
+
+
+```{r}
+
+trigram_repo_n <- news  %>%
+  unnest_tokens(trigram, text, token = "ngrams", n = 3)
+
+trigram_cover <- trigram_repo_n%>%
+  count(trigram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("trigram_repo_n"))
+trigram_cover %>%
+  top_n(15, n) %>%
+  mutate(trigram = reorder(trigram, n)) %>%
+  ggplot(aes(trigram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("trigrams_news")
+  
+```
+
+
+```{r echo=FALSE}
+trigram_repo_t <- twitter  %>%
+  unnest_tokens(trigram, text, token = "ngrams", n = 3)
+
+trigram_cover_t <- trigram_repo_t%>%
+  count(trigram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("trigram_repo_t"))
+trigram_cover_t %>%
+  top_n(15, n) %>%
+  mutate(trigram = reorder(trigram, n)) %>%
+  ggplot(aes(trigram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("trigrams_twitter")
+```
+
+
+4 gram 
+
+
+
+```{r}
+
+quadgram_repo_n <- news  %>%
+  unnest_tokens(quadgram, text, token = "ngrams", n = 4)
+
+quadgram_cover <- quadgram_repo_n%>%
+  count(quadgram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("quadgram_repo_n"))
+quadgram_cover %>%
+  top_n(15, n) %>%
+  mutate(quadgram = reorder(quadgram, n)) %>%
+  ggplot(aes(quadgram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("quadgrams_news")
+  
+```
+
+
+```{r echo=FALSE}
+quadgram_repo_t <- twitter  %>%
+  unnest_tokens(quadgram, text, token = "ngrams", n = 4)
+
+quadgram_cover_t <- quadgram_repo_t%>%
+  count(quadgram) %>%  
+  filter(n > 10) %>%
+  arrange(desc(n))  
+
+rm(list = c("quadgram_repo_t"))
+quadgram_cover_t %>%
+  top_n(15, n) %>%
+  mutate(quadgram = reorder(quadgram, n)) %>%
+  ggplot(aes(quadgram, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("quadgrams_twitter")
+```
